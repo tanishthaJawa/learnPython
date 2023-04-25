@@ -1,0 +1,15 @@
+{
+  "firstName": "Alex",
+  "age": 25,
+  "location": "Gurgaon",
+  "subjects": [
+    {
+      "Name": "Maths",
+      "marks": 90
+    },
+    {
+      "Name": "Science",
+      "marks": 90
+    }
+  ]
+}
