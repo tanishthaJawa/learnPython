@@ -4,6 +4,7 @@ Python is interpreted, every line of code is executed in order.
 To seperate a variable name we don't use camel case we use snake case i.e seperate it with an underscore(_)
 
 # **Data Types:**
+Each Python data type is an object that has been instaniated by some class
 - String = ""
 - Number : decimal or normal 
 - Boolean = True,False
@@ -2066,4 +2067,304 @@ def open_managed_file(filename):
 with open_managed_file('notes.txt') as f:  
     f.write('some toodoo')
     
+```
+# Obejct Oriented Programming
+- Python always passes first argument as the object itself inside ist methods
+- The init magic method is the constructor
+- An object has access to instance variables as well as class variables. First it looks for attributes at  instance level and then at class level.
+- Methods defined on class receives a parameter of class. It is the reference of class itself that python sends in the background
+- An isntance has access to class variables
+- To create private methods we use __ double underscore
+
+```
+import csv  
+  
+  
+class Item:  
+    pay_rate = 0.8  # The pay rate after 20% discount  
+    all = []  
+  
+    def __init__(self, name: str, price: float, quantity=0): 
+     
+        # Run validations to received arguments  
+        assert price >= 0, f"Price {price} is not greater than 0!"      
+        assert quantity >= 0, f"Quantity {quantity} is not greater than 0!"
+          
+        # Assign to self object  
+        self.name = name  
+        self.price = price  
+        self.quantity = quantity  
+  
+        # Actions to execute  
+        Item.all.append(self)  
+  
+    def calculate_total_price(self):  
+        return self.price * self.quantity  
+  
+    def apply_discount(self):  
+        # pay_Rate should only be accessed using object instead of class inside a method like this  
+        self.price = self.price * self.pay_rate  
+  
+    # changes the way we represent objects inside our all list  
+    def __repr__(self):  
+        return f"Item('{self.name}',{self.price},{self.quantity})"  
+  
+    # methods defined on class  
+    @classmethod  
+    def instantiate_from_csv(cls):  
+        with open('items.csv', 'r') as f:  
+            reader = csv.DictReader(f)  
+            items = list(reader)  
+  
+        for item in items:  
+            Item(  
+                name=item.get('name'),  
+                price=float(item.get('price')),  
+                quantity=int(item.get('quantity')),  
+            )  
+  
+    # static method  
+    @staticmethod  
+    def is_integer(num):  
+        # We will count out floats that are point 0  
+        if isinstance(num, float):  
+            # Count out the floats that are point zero  
+            return num.is_integer()  
+        elif isinstance(num, int):  
+            return True  
+        else:  
+            return False  
+  
+  
+item = Item("Phone", 100, 5)  
+print(item.calculate_total_price())  
+  
+another_item = Item("Laptop", 200, 5)  
+another_item.has_numpad = False  
+print(another_item.calculate_total_price())  
+  
+print(Item.pay_rate)  
+print(item.pay_rate)  # access to class variable  
+print(another_item.pay_rate)  
+  
+print(Item.__dict__)  # gets ALL THE ATTRIBUTES at the class level and converts it to dictioanry  
+print(item.__dict__)  # ALL THE ATTRIBUTES at the instance level  
+  
+item.apply_discount()  
+print(item.price)  
+  
+another_item.pay_rate = 0.7  
+another_item.apply_discount()  
+print(another_item.price)  
+  
+# item1 = Item("Phone", 100, 1)  
+# item2 = Item("Laptop", 1000, 3)  
+# item3 = Item("Cable", 10, 5)  
+# item4 = Item("Mouse", 50, 5)  
+# item5 = Item("Keyboard", 75, 5)  
+Item.instantiate_from_csv()  
+print(Item.all)  
+  
+for instance in Item.all:  
+    print(instance.name)  
+  
+print(Item.is_integer(7.0))
+```
+
+```
+ __dict__ : gets ALL THE ATTRIBUTES at the class level and converts it to dictioanry
+ self.__class__.__name__ : returns the name of class
+```
+-
+- ## Class methods VS Static methods
+
+```
+# When to ue clqss methods and when to use static methods  
+  
+class Item:  
+    @staticmethod  
+    def is_integer():  
+        '''  
+        This should do something that has a relationship with the class        but not something that is unique per instance.        '''  
+    @classmethod  
+    def instaniate_from_something(cls):  
+        '''  
+        This should so something that has a relationship with the class,        but usually those that are used to manipulate different structures of data to instaniate objects, like we have done with CSV  
+        One difference from static and class method is that static method does not receive any reference but class method does  
+        Both of them can be called from an instance level but you rarely do that        '''
+        
+```
+
+## Inheritance:
+```
+from item import Item  
+  
+  
+class Phone(Item):  
+  
+    def __init__(self, name: str, price: float, quantity=0, broken_phones=0):  
+        # Call the super function  
+        super().__init__(name, price, quantity)  
+  
+        # Run validations to received arguments  
+        assert broken_phones >= 0, f"Broken Phones {broken_phones} is not greater than 0!"  
+        # Assign to self object  
+        self.broken_phones = broken_phones
+        
+```
+
+
+## Encapsulation:
+
+### Getters and setters
+- To create a private variable we use a double unerscore(__)
+```
+class Item:  
+    pay_rate = 0.8  # The pay rate after 20% discount  
+    all = []  
+  
+    def __init__(self, name: str, price: float, quantity=0): 
+     
+        # Run validations to received arguments  
+        assert price >= 0, f"Price {price} is not greater than 0!"      
+        assert quantity >= 0, f"Quantity {quantity} is not greater than 0!" 
+         
+        # Assign to self object  
+        self.__name = name  
+        self.price = price  
+        self.quantity = quantity  
+  
+        # Actions to execute  
+        Item.all.append(self)  
+  
+    # property decorator - read only attribute makes a field read only  
+    @property  
+    def name(self):  
+        return self.__name  
+  
+    @name.setter  
+    def name(self, value):  
+        if len(value) > 10:  
+            raise Exception("The name is too Long!")  
+        else:  
+            self.__name = value
+
+```
+
+To access these values using getter and setter:
+```
+# getters and setters  
+item1 = Item("MyItem", 750)  
+  
+# Getting an attribute  
+print(item1.name)  
+  
+# setting an attribute  
+item1.name = "A"  
+print(item1.name)
+
+```
+
+## Abstract Classes
+```
+from abc import ABC, abstractmethod  
+  
+  
+class Animal(ABC):  
+  
+    @abstractmethod  
+    def move(self):  
+        pass  
+  
+  
+class Human(Animal):  
+  
+    def move(self):  
+        print("I can walk and run")  
+  
+  
+class Snake(Animal):  
+  
+    def move(self):  
+        print("I can crawl")  
+  
+  
+class Dog(Animal):  
+  
+    def move(self):  
+        print("I can bark")  
+  
+  
+class Lion(Animal):  
+  
+    def move(self):  
+        print("I can roar")  
+  
+  
+# Driver code  
+R = Human()  
+R.move()  
+  
+K = Snake()  
+K.move()  
+  
+R = Dog()  
+R.move()  
+  
+K = Lion()  
+K.move()
+
+```
+
+## Interface:
+```
+import zope.interface  
+  
+  
+class MyInterface(zope.interface.Interface):  
+    x = zope.interface.Attribute("foo")  
+  
+    def method1(self, x):  
+        pass  
+  
+    def method2(self):  
+        pass  
+  
+  
+@zope.interface.implementer(MyInterface)  
+class MyClass:  
+    def method1(self, x):  
+        return x ** 2  
+  
+    def method2(self):  
+        return "foo"  
+  
+  
+obj = MyClass()  
+  
+print(obj.method1(5))  
+print(obj.method2())  
+  
+# ask an interface whether it  
+# is implemented by a class:  
+print(MyInterface.implementedBy(MyClass))  
+  
+# MyClass does not provide  
+# MyInterface but implements it:  
+print(MyInterface.providedBy(MyClass))  
+  
+# ask whether an interface  
+# is provided by an object:  
+print(MyInterface.providedBy(obj))  
+  
+# ask what interfaces are  
+# implemented by a class:  
+print(list(zope.interface.implementedBy(MyClass)))  
+  
+# ask what interfaces are  
+# provided by an object:  
+print(list(zope.interface.providedBy(obj)))  
+  
+# class does not provide interface  
+print(list(zope.interface.providedBy(MyClass)))
 ```
