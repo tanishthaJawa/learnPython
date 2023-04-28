@@ -1,6 +1,7 @@
 #Python
 
 Python is interpreted, every line of code is executed in order.
+It is dynamic.
 To seperate a variable name we don't use camel case we use snake case i.e seperate it with an underscore(_)
 
 # **Data Types:**
